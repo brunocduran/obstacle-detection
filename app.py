@@ -307,7 +307,7 @@ def predict():
             image = image.rotate(270, PIL.Image.NEAREST, expand=1)
 
             # Redimensionando a imagem
-            image = image.resize((750, 1000), Image.ANTIALIAS)
+            image = image.resize((750, 1000), Image.LANCZOS)
 
             # Salva a imagem
             image.save(os.path.join(PREDICT_PATH, filename))
@@ -334,7 +334,7 @@ def predict():
             return resp
 
     except:
-        resp = jsonify({"result", 0})
+        resp = jsonify({"result": 0})
         resp.status_code = 500
         return resp
 
