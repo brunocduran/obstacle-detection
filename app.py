@@ -155,7 +155,7 @@ def create_models_VGG():
     IMAGE_CHANNELS = 3
     POOLING = None
 
-    from keras.applications.vgg16 import VGG16, preprocess_input
+    from keras.api.applications.vgg16 import VGG16, preprocess_input
     global modelVGG16
     modelVGG16 = VGG16(weights='imagenet', include_top=False, pooling=POOLING,
                        input_shape=(224, 224) + (IMAGE_CHANNELS,))
@@ -163,7 +163,7 @@ def create_models_VGG():
     global preprocessing_function_VGG16
     preprocessing_function_VGG16 = preprocess_input
 
-    from keras.applications.vgg19 import VGG19, preprocess_input
+    from keras.api.applications.vgg19 import VGG19, preprocess_input
     global modelVGG19
     modelVGG19 = VGG19(weights='imagenet', include_top=False, pooling=POOLING,
                        input_shape=(224, 224) + (IMAGE_CHANNELS,))
@@ -171,8 +171,8 @@ def create_models_VGG():
     global preprocessing_function_VGG19
     preprocessing_function_VGG19 = preprocess_input
 
-    from keras.layers import Flatten
-    from keras.models import Model
+    from keras.api.layers import Flatten
+    from keras.api.models import Model
 
     # VGG16
     output = Flatten()(modelVGG16.layers[-1].output)
@@ -204,7 +204,7 @@ def extract_features(df, model, preprocessing_function):
         shuffle=False
     )
 
-    features = model.predict(generator, steps=np.ceil(total / batch_size))
+    features = model.predict(generator, steps=int(np.ceil(total / batch_size)))
 
     return features
 
@@ -333,7 +333,12 @@ def predict():
             resp.status_code = 201
             return resp
 
-    except:
+    #except:
+    #    resp = jsonify({"result": 0})
+    #    resp.status_code = 500
+    #    return resp
+    except Exception as e:
+        print(e)
         resp = jsonify({"result": 0})
         resp.status_code = 500
         return resp
