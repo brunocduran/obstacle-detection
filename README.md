@@ -1,9 +1,5 @@
-# AUXÍLIO A DEFICIENTES VISUAIS UTILIZANDO REDES NEURAIS CONVOLUCIONAIS
+# Auxílio a Deficientes Visuais Utilizando Redes Neurais Convolucionais (Backend)
 
-# Participantes:
-
-<h3>
-   Desenvolvedores: Bruno César Duran e Igor Bianco Buosi
-   <br>
-   Orientador: Jefferson Antônio Ribeiro Passerini
-</h3>
+**Participantes:**
+- **Desenvolvedores:** Bruno César Duran e Igor Bianco Buosi
+- **Orientador:** Jefferson Antônio Ribeiro Passerini
