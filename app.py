@@ -38,6 +38,9 @@ from tensorflow.keras.layers import Dense, Dropout, Flatten
 from keras_preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import train_test_split
 
+import FirebaseHelper
+from FirebaseHelper import *
+
 # endregion
 
 app = Flask(__name__)
@@ -422,7 +425,23 @@ def salvar_modelo():
 
 
 
+@app.route('/enviar_modelo', methods=['GET'])
+def enviar_modelo():
+    try:
+        FirebaseHelper.upload_model_to_storage()
+        return jsonify({'message': 'Modelo enviado para o storage do firebase'})
 
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/download_imagens', methods=['GET'])
+def download_imagens():
+    try:
+        FirebaseHelper.download_images_from_storage()
+        return jsonify({'message': 'Foi realizado o download das imagens do storage para a pasta local'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 
 # endregion
