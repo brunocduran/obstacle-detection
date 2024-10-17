@@ -5,7 +5,7 @@ from datetime import datetime
 
 # Inicializa o Firebase Admin SDK
 cred = credentials.Certificate(
-    "tccobstacledetection-7bfe8-firebase-adminsdk-rjbld-3ba1172fb4.json")  # Substitua com o caminho para o arquivo JSON das credenciais do Firebase
+    "credenciais\\credencial.json")  # Substitua com o caminho para o arquivo JSON das credenciais do Firebase
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'tccobstacledetection-7bfe8.appspot.com'  # Substitua com o bucket do Firebase Storage
 })
@@ -13,7 +13,7 @@ firebase_admin.initialize_app(cred, {
 bucket = storage.bucket()
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_PATH, 'modelo', 'combined_model')
+MODEL_PATH = os.path.join(BASE_PATH, 'modelo')
 
 
 # Função para fazer o download das imagens e salvá-las localmente
@@ -46,7 +46,7 @@ def download_images_from_storage():
 def upload_model_to_storage():
     print(f'Iniciando o envio do modelo')
     # Nome do arquivo modelo
-    model_local_path = os.path.join(MODEL_PATH, 'model_combined_image_input_vgg16_vgg19.h5')
+    model_local_path = os.path.join(MODEL_PATH, 'combined_model.tflite')
 
     # Cria o nome do arquivo com base na data e hora atuais
     current_datetime = datetime.now().strftime("%m%d%Y%H%M%S")
