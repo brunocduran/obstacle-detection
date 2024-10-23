@@ -21,10 +21,8 @@ np.random.seed(SEED)
 
 # Definindo paths
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
 DATASET_PATH = os.path.join(BASE_PATH, 'images-treino')
 RESULT_PATH = os.path.join(BASE_PATH, 'features', 'features.csv')
-
 
 def load_data():
     # Filtra apenas arquivos de imagem válidos
@@ -44,7 +42,6 @@ def load_data():
     })
 
     return df
-
 
 def feature_model_extract(df):
     start = time.time()
@@ -67,7 +64,6 @@ def feature_model_extract(df):
     time_feature_extraction = end - start
 
     return features, time_feature_extraction
-
 
 def create_model(model_type):
     IMAGE_CHANNELS = 3
@@ -130,18 +126,22 @@ def extract_features(df, model, preprocessing_function, image_size):
 
     return features
 
-
 # ----------------------- MAIN ------------------------------------------------
-# Carregando as imagens em um dataframe
-df = load_data()
+def main_extract_feature():
+    # Carregando as imagens em um dataframe
+    df = load_data()
 
-# Extraindo as características das imagens
-features, time_feature_extraction = feature_model_extract(df)
+    # Extraindo as características das imagens
+    features, time_feature_extraction = feature_model_extract(df)
 
-# Convertendo as características em um dataframe
-df_csv = pd.DataFrame(features)
+    # Convertendo as características em um dataframe
+    df_csv = pd.DataFrame(features)
 
-# Salvando o dataframe em um arquivo CSV
-df_csv.to_csv(RESULT_PATH)
+    # Salvando o dataframe em um arquivo CSV
+    df_csv.to_csv(RESULT_PATH)
 
-print(f"Extração de features concluída em {time_feature_extraction:.2f} segundos.")
+    print(f"Extração de features concluída em {time_feature_extraction:.2f} segundos.")
+
+# Este bloco garante que o código seja executado apenas quando o arquivo for executado diretamente
+if __name__ == "__main__":
+    main_extract_feature()
