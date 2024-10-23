@@ -21,7 +21,7 @@ model_combined_path = os.path.join(MODEL_PATH, 'model_combined_image_input_vgg16
 model_combined = load_model(model_combined_path)
 
 # Caminho para a imagem de teste
-img_path = 'C:\\Users\\igorb\\Desktop\\Faculdade\\Sistemas\\TCC\\python\\obstacle-detection\\images-teste\\\Readme\\teste_sem.jpeg'  # Substitua pelo caminho da sua imagem
+img_path = 'C:\\PythonProjects\\obstacle-detection\\images-treino\\nonclear.120.jpg'  # Substitua pelo caminho da sua imagem
 
 # Pré-processar a imagem
 preprocessed_img = load_and_preprocess_image(img_path)
