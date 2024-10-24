@@ -8,6 +8,7 @@ from tensorflow.keras.layers import Dense, Dropout, Flatten
 from sklearn.model_selection import train_test_split
 import FirebaseHelper, extract_feature, modeloCombinado
 from FirebaseHelper import *
+import os
 
 app = Flask(__name__)
 
@@ -33,39 +34,26 @@ data_filename = RESULT_PATH + "data_detailed.csv"
 
 image_size = (224, 224)
 
-def load_data():
-    # Definir extensões de arquivos válidos (imagens)
-    valid_extensions = ('.jpg', '.jpeg', '.png')
 
-    # Listar apenas arquivos que possuem extensões de imagem válidas
-    filenames = [f for f in os.listdir(DATASET_PATH) if f.lower().endswith(valid_extensions)]
+def load_feature():
+    # Carregar o CSV sem a restrição de colunas
+    df = pd.read_csv(FEATURE_PATH, sep=',')
 
-    categories = []
+    # Contar o número de colunas
+    num_cols = df.shape[1]
+    print(f"O número de colunas no arquivo CSV é: {num_cols}")
 
-    for filename in filenames:
-        category = filename.split('.')[0]
-        if category == 'clear':
-            categories.append(1)
-        else:
-            categories.append(0)
-
-    df = pd.DataFrame({
-        'filename': filenames,
-        'category': categories
-    })
+    # Carregar novamente o CSV, agora com o número correto de colunas
+    df = pd.read_csv(FEATURE_PATH, sep=',', usecols=range(1, num_cols))
 
     return df
 
-
-def load_feature():
-    return pd.read_csv(FEATURE_PATH, sep=',', usecols=range(1, 50177))
 
 @app.route('/extrair_feature', methods=['GET'])
 def extrair_features():
     try:
         extract_feature.main_extract_feature()
-        return jsonify({'message': 'Features extraidas e salvas com sucesso'})
-
+        return jsonify({'message': 'Features extraídas e salvas com sucesso'})
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -74,7 +62,7 @@ def extrair_features():
 def salvar_modelo():
     try:
         # Carregar os dados
-        df = load_data()
+        df = extract_feature.load_data()
 
         # Convertendo os valores da coluna 'category' para strings adequadas para 'binary' mode
         df['category'] = df['category'].replace({1: 'clear', 0: 'non-clear'})  # Converte para strings apenas para ImageDataGenerator
@@ -126,8 +114,7 @@ def salvar_modelo():
 def salvar_modelo_combinado():
     try:
         modeloCombinado.gerarModeloCombinado()
-        return jsonify({'message': 'Modelo cominado gerado e salvo com sucesso'})
-
+        return jsonify({'message': 'Modelo combinado gerado e salvo com sucesso'})
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -135,8 +122,7 @@ def salvar_modelo_combinado():
 def enviar_modelo():
     try:
         FirebaseHelper.upload_model_to_storage()
-        return jsonify({'message': 'Modelo enviado para o storage do firebase'})
-
+        return jsonify({'message': 'Modelo enviado para o storage do Firebase'})
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -145,7 +131,6 @@ def download_imagens():
     try:
         FirebaseHelper.download_images_from_storage()
         return jsonify({'message': 'Foi realizado o download das imagens do storage para a pasta local'})
-
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -157,11 +142,9 @@ def run():
         salvar_modelo_combinado()
         enviar_modelo()
 
-        return jsonify({'message': 'Features extraidas, modelo gerado e enviado para o firebase'})
-
+        return jsonify({'message': 'Features extraídas, modelo gerado e enviado para o Firebase'})
     except Exception as e:
         return jsonify({'error': str(e)})
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
