@@ -43,7 +43,7 @@ def load_feature():
 
     # Contar o número de colunas
     num_cols = df.shape[1]
-    print(f"O número de colunas no arquivo CSV é: {num_cols}")
+    #print(f"O número de colunas no arquivo CSV é: {num_cols}")
 
     # Carregar novamente o CSV, agora com o número correto de colunas
     df = pd.read_csv(FEATURE_PATH, sep=',', usecols=range(1, num_cols))
