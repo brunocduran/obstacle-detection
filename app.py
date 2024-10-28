@@ -6,8 +6,7 @@ from flask import Flask, jsonify
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Flatten
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.regularizers import l2
 from sklearn.model_selection import train_test_split
 import FirebaseHelper, extract_feature, modeloCombinado
 from FirebaseHelper import *
@@ -86,23 +85,19 @@ def salvar_modelo():
 
         # Criar o modelo com base nas features carregadas
         model = Sequential()
-        model.add(Dense(256, activation='relu', input_shape=(X_train.shape[1],)))
-        model.add(BatchNormalization())  # Normalização de batch
-        model.add(Dropout(0.3))
-        model.add(Dense(256, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.0005)))
-        model.add(BatchNormalization())  # Normalização de batch
-        model.add(Dropout(0.3))
+        #model.add(Dense(256, activation='relu', input_shape=(X_train.shape[1],)))  # Ajuste de entrada
+        model.add(Dense(256, activation='relu', input_shape=(X_train.shape[1],), kernel_regularizer=l2(0.001)))
+        model.add(Dropout(0.5))
         model.add(Dense(1, activation='sigmoid'))  # Saída binária
 
         # Compilar o modelo
         #model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 
         # Treinar o modelo com as features extraídas
         #model.fit(X_train, y_train, epochs=15, batch_size=32, validation_data=(X_val, y_val))
-        checkpoint = ModelCheckpoint(filepath='modelo\\best_model.keras', monitor='val_loss', save_best_only=True)
-        early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-        model.fit(X_train, y_train, epochs=100, validation_data=(X_val, y_val), callbacks=[early_stopping, checkpoint])
+        early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+        model.fit(X_train, y_train, epochs=35, batch_size=64, validation_data=(X_val, y_val), callbacks=[early_stopping])
 
         # Salvar o modelo Keras
         keras_model_path = os.path.join(MODEL_PATH, 'model.h5')

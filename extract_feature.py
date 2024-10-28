@@ -84,14 +84,7 @@ def extract_features(df, model, preprocessing_function, image_size):
     df["category"] = df["category"].replace({1: 'clear', 0: 'non-clear'})
 
     datagen = ImageDataGenerator(
-        preprocessing_function=preprocessing_function,
-        rotation_range=20,  # Rotação aleatória até 20 graus
-        width_shift_range=0.2,  # Deslocamento horizontal
-        height_shift_range=0.2,  # Deslocamento vertical
-        shear_range=0.2,  # Cisalhamento aleatório
-        zoom_range=0.2,  # Zoom aleatório
-        horizontal_flip=True,  # Inversão horizontal
-        fill_mode='nearest'  # Como preencher os novos pixels gerados
+        preprocessing_function=preprocessing_function
     )
 
     total = df.shape[0]
