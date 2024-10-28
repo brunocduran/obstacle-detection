@@ -1,14 +1,11 @@
 # Esse arquivo é responsável por gerar as features das imagens da base de teste
 
-# base libraries
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import random
 import time
 import os
-
-# transformation
 from keras_preprocessing.image import ImageDataGenerator
 
 # Garantir reprodutibilidade dos resultados
@@ -25,8 +22,12 @@ DATASET_PATH = os.path.join(BASE_PATH, 'images-treino')
 RESULT_PATH = os.path.join(BASE_PATH, 'features', 'features.csv')
 
 def load_data():
-    # Filtra apenas arquivos de imagem válidos
-    filenames = [f for f in os.listdir(DATASET_PATH) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    # Definir extensões de arquivos válidos (imagens)
+    valid_extensions = ('.jpg', '.jpeg', '.png')
+
+    # Listar apenas arquivos que possuem extensões de imagem válidas
+    filenames = [f for f in os.listdir(DATASET_PATH) if f.lower().endswith(valid_extensions)]
+
     categories = []
 
     for filename in filenames:
@@ -46,55 +47,34 @@ def load_data():
 def feature_model_extract(df):
     start = time.time()
 
-    # Extrai features usando VGG16
-    model_type = 'VGG16'
-    modelVGG16, preprocessing_functionVGG16, image_sizeVGG16 = create_model(model_type)
-    features_VGG16 = extract_features(df, modelVGG16, preprocessing_functionVGG16, image_sizeVGG16)
-
-    # Extrai features usando VGG19
-    model_type = 'VGG19'
-    modelVGG19, preprocessing_functionVGG19, image_sizeVGG19 = create_model(model_type)
-    features_VGG19 = extract_features(df, modelVGG19, preprocessing_functionVGG19, image_sizeVGG19)
-
-    # Concatenar as features extraídas de VGG16 e VGG19
-    features = np.hstack((features_VGG16, features_VGG19))
+    # Extrai features usando MobileNetV2
+    model_type = 'MobileNetV2'
+    modelMobileNetV2, preprocessing_functionMobileNetV2, image_sizeMobileNetV2 = create_model(model_type)
+    features_MobileNetV2 = extract_features(df, modelMobileNetV2, preprocessing_functionMobileNetV2, image_sizeMobileNetV2)
 
     end = time.time()
 
     time_feature_extraction = end - start
 
-    return features, time_feature_extraction
+    return features_MobileNetV2, time_feature_extraction
 
 def create_model(model_type):
     IMAGE_CHANNELS = 3
-    POOLING = None  # Nenhum, 'avg', 'max'
+    POOLING = 'avg'  # 'avg' pooling para MobileNetV2
 
     # Carrega o modelo e a função de pré-processamento
-    if model_type == 'VGG16':
+    if model_type == 'MobileNetV2':
         image_size = (224, 224)
-        from keras.applications.vgg16 import VGG16, preprocess_input
-        model = VGG16(weights='imagenet', include_top=False, pooling=POOLING,
-                      input_shape=image_size + (IMAGE_CHANNELS,))
-
-    elif model_type == 'VGG19':
-        image_size = (224, 224)
-        from keras.applications.vgg19 import VGG19, preprocess_input
-        model = VGG19(weights='imagenet', include_top=False, pooling=POOLING,
-                      input_shape=image_size + (IMAGE_CHANNELS,))
+        from keras.api.applications.mobilenet_v2 import MobileNetV2, preprocess_input
+        model = MobileNetV2(weights='imagenet', include_top=False, pooling=POOLING,
+                            input_shape=image_size + (IMAGE_CHANNELS,))
 
     else:
         raise ValueError("Error: Model not implemented.")
 
     preprocessing_function = preprocess_input
 
-    from keras.layers import Flatten
-    from keras.models import Model
-
-    output = Flatten()(model.layers[-1].output)
-    model = Model(inputs=model.inputs, outputs=output)
-
     return model, preprocessing_function, image_size
-
 
 def extract_features(df, model, preprocessing_function, image_size):
     # Atualiza os nomes de categoria
