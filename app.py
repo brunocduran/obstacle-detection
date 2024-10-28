@@ -4,7 +4,7 @@ import tensorflow as tf
 import random
 from flask import Flask, jsonify
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
 from sklearn.model_selection import train_test_split

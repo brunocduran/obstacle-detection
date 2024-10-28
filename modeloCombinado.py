@@ -1,6 +1,6 @@
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.models import load_model, Model
-from tensorflow.keras.layers import Dense, Dropout, Flatten, Input
+from tensorflow.keras.layers import Flatten, Input
 import tensorflow as tf
 import os
 

@@ -1,14 +1,11 @@
 # Esse arquivo é responsável por gerar as features das imagens da base de teste
 
-# base libraries
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import random
 import time
 import os
-
-# transformation
 from keras_preprocessing.image import ImageDataGenerator
 
 # Garantir reprodutibilidade dos resultados

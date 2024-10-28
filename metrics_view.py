@@ -3,14 +3,12 @@
 #base libraries
 import pandas as pd
 import os
-
-#Métricas
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 #DATASET_PATH = "C:/TCC/obstacle-detection/images-teste"
 #RESULT_PATH = "C:/TCC/obstacle-detection/details-results/results_predict/"
