@@ -8,7 +8,7 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
 from sklearn.model_selection import train_test_split
-import FirebaseHelper, extract_feature, modeloCombinado
+import FirebaseHelper, extract_feature, modeloCombinado, metrics_view
 from FirebaseHelper import *
 import os
 
@@ -25,8 +25,8 @@ EXTENSAO_PERMITIDA = set(['png', 'jpg', 'jpeg'])
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-PREDICT_PATH = os.path.join(BASE_PATH, 'images-teste')
-DATASET_PATH = os.path.join(BASE_PATH, 'images-treino')
+#PREDICT_PATH = os.path.join(BASE_PATH, 'images-teste')
+#DATASET_PATH = os.path.join(BASE_PATH, 'images-treino')
 FEATURE_PATH = os.path.join(BASE_PATH, 'features', 'features.csv')
 RESULT_PATH = os.path.join(BASE_PATH, 'details-results', '')
 MODEL_PATH = os.path.join(BASE_PATH, 'modelo', 'model')
@@ -149,6 +149,14 @@ def run():
         enviar_modelo()
 
         return jsonify({'message': 'Features extraídas, modelo gerado e enviado para o Firebase'})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/metrics', methods=['GET'])
+def metrics():
+    try:
+        metrics_view.metricsView()
+        return jsonify({'message': 'Métricas geradas'})
     except Exception as e:
         return jsonify({'error': str(e)})
 
