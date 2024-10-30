@@ -1,0 +1,1 @@
+* Pastas onde são criados os modelos que seram utilizados no app android.
