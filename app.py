@@ -5,12 +5,16 @@ import random
 from flask import Flask, jsonify
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, Callback
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, roc_auc_score
 from tensorflow.keras.regularizers import l2
 from sklearn.model_selection import train_test_split
 import FirebaseHelper, extract_feature, modeloCombinado, metrics_view
 from FirebaseHelper import *
+import matplotlib.pyplot as plt
+import seaborn as sns
 import os
+import glob
 
 app = Flask(__name__)
 
@@ -36,6 +40,107 @@ data_filename = RESULT_PATH + "data_detailed.csv"
 
 image_size = (224, 224)
 
+
+import matplotlib
+matplotlib.use('Agg')
+
+
+def remove_all_png_files(directory):
+    png_files = glob.glob(os.path.join(directory, "*.png"))
+    for file_path in png_files:
+        try:
+            os.remove(file_path)
+            print(f"Removido: {file_path}")
+        except Exception as e:
+            print(f"Erro ao remover {file_path}: {e}")
+
+
+class ConfusionMatrixCallback(Callback):
+    def __init__(self, X_val, y_val):
+        super().__init__()
+        self.X_val = X_val
+        self.y_val = y_val
+        self.epoch_data = []  # Armazenar informações para o Excel
+
+    def on_epoch_end(self, epoch, logs=None):
+        # Prever os valores de validação
+        y_pred = (self.model.predict(self.X_val) > 0.5).astype("int32").flatten()
+
+        # Calcular a matriz de confusão
+        cm = confusion_matrix(self.y_val, y_pred)
+
+        # Obter Verdadeiro Negativo (VN), Falso Positivo (FP), Falso Negativo (FN) e Verdadeiro Positivo (VP)
+        tn, fp, fn, tp = cm.ravel()
+
+        # Plotar e salvar a matriz de confusão
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", cbar=False)
+        plt.xlabel("Predito")
+        plt.ylabel("Real")
+        plt.title(f"Matriz de Confusão - Época {epoch + 1}")
+        plt.savefig(f"{RESULT_PATH}matriz_confusao_epoca_{epoch + 1}.png")
+        plt.close()
+
+        # Calcular métricas detalhadas
+        accuracy = accuracy_score(self.y_val, y_pred)
+        f1 = f1_score(self.y_val, y_pred)
+        roc_score = roc_auc_score(self.y_val, y_pred)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+        fnr = fn / (fn + tp) if (fn + tp) > 0 else 0
+
+        # Armazenar as informações para exportação
+        self.epoch_data.append({
+            "Época": epoch + 1,
+            "Acurácia": round(accuracy, 4),
+            "Pontuação F1": round(f1, 4),
+            "Pontuação ROC": round(roc_score, 4),
+            "Precisão": round(precision, 4),
+            "Sensibilidade (Recall)": round(recall, 4),
+            "Especificidade": round(specificity, 4),
+            "Taxa de Falsos Positivos (FPR)": round(fpr, 4),
+            "Taxa de Falsos Negativos (FNR)": round(fnr, 4),
+            "Verdadeiro Negativo (VN)": tn,
+            "Falso Positivo (FP)": fp,
+            "Falso Negativo (FN)": fn,
+            "Verdadeiro Positivo (VP)": tp,
+            "Total de Amostras": tn + fp + fn + tp
+        })
+
+    def on_train_end(self, logs=None):
+        # Salvar os dados detalhados em um arquivo Excel ao final do treinamento
+        df_epoch_data = pd.DataFrame(self.epoch_data)
+
+        # Criar um arquivo Excel com duas folhas
+        with pd.ExcelWriter(f"{RESULT_PATH}dados_epoca_detalhado.xlsx") as writer:
+            # Escrever os dados das épocas na primeira aba
+            df_epoch_data.to_excel(writer, sheet_name="Dados por Época", index=False)
+
+            # Criar uma segunda aba com as explicações
+            # Criar uma segunda aba com as explicações
+            explicacoes = {
+                "Métrica": [
+                    "Acurácia", "Pontuação F1", "Pontuação ROC", "Precisão", "Sensibilidade (Recall)",
+                    "Especificidade", "Taxa de Falsos Positivos (FPR)", "Taxa de Falsos Negativos (FNR)",
+                    "Classe Positiva", "Classe Negativa"
+                ],
+                "Descrição": [
+                    "Proporção de predições corretas sobre o total de amostras.",
+                    "Média harmônica entre Precisão e Sensibilidade, usada para avaliar equilíbrio.",
+                    "Área sob a curva ROC, indicando a capacidade de separação entre classes.",
+                    "Proporção de predições corretas da classe positiva.",
+                    "Proporção de exemplos positivos corretamente identificados.",
+                    "Proporção de exemplos negativos corretamente identificados.",
+                    "Proporção de exemplos negativos incorretamente classificados como positivos.",
+                    "Proporção de exemplos positivos incorretamente classificados como negativos.",
+                    "Representa a classe 'clear' (sem obstáculo).",
+                    "Representa a classe 'non-clear' (com obstáculo)."
+                ]
+            }
+            df_explicacoes = pd.DataFrame(explicacoes)
+            df_explicacoes.to_excel(writer, sheet_name="Explicações", index=False)
 
 def load_feature():
     # Carregar o CSV sem a restrição de colunas
@@ -63,6 +168,9 @@ def extrair_features():
 @app.route('/salvar_modelo', methods=['GET'])
 def salvar_modelo():
     try:
+        # remover todas as matrizes de confusao da pasta do resultado detalhado
+        remove_all_png_files(RESULT_PATH)
+
         # Carregar os dados
         df = extract_feature.load_data()
 
@@ -97,7 +205,11 @@ def salvar_modelo():
         # Treinar o modelo com as features extraídas
         #model.fit(X_train, y_train, epochs=15, batch_size=32, validation_data=(X_val, y_val))
         early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
-        model.fit(X_train, y_train, epochs=35, batch_size=64, validation_data=(X_val, y_val), callbacks=[early_stopping])
+
+        # Adicionar o callback para matriz de confusão
+        confusion_matrix_callback = ConfusionMatrixCallback(X_val, y_val)
+
+        model.fit(X_train, y_train, epochs=35, batch_size=64, validation_data=(X_val, y_val), callbacks=[early_stopping, confusion_matrix_callback])
 
         # Salvar o modelo Keras
         keras_model_path = os.path.join(MODEL_PATH, 'model.h5')
@@ -115,6 +227,8 @@ def salvar_modelo():
 
     except Exception as e:
         return jsonify({'error': str(e)})
+
+# Callback personalizado para gerar matriz de confusão ao final de cada epoch
 
 @app.route('/salvar_modelo_combinado', methods=['GET'])
 def salvar_modelo_combinado():
@@ -162,3 +276,6 @@ def metrics():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+
+# Callback personalizado para gerar matriz de confusão ao final de cada epoch e salvar métricas
