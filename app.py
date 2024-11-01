@@ -203,8 +203,7 @@ def salvar_modelo():
         model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 
         # Treinar o modelo com as features extraídas
-        #model.fit(X_train, y_train, epochs=15, batch_size=32, validation_data=(X_val, y_val))
-        early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
         # Adicionar o callback para matriz de confusão
         confusion_matrix_callback = ConfusionMatrixCallback(X_val, y_val)
