@@ -73,11 +73,33 @@ class ConfusionMatrixCallback(Callback):
         tn, fp, fn, tp = cm.ravel()
 
         # Plotar e salvar a matriz de confusão
+        #plt.figure(figsize=(8, 6))
+        #sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", cbar=False)
+        #plt.xlabel("Predito")
+        #plt.ylabel("Real")
+        #plt.title(f"Matriz de Confusão - Época {epoch + 1}")
+        #plt.savefig(f"{RESULT_PATH}matriz_confusao_epoca_{epoch + 1}.png")
+        #plt.close()
+
+
+        # Configurações para rótulos personalizados e tamanho das fontes
+        labels = ['VP', 'FP', 'FN', 'VN']
+        cm_display = [[cm[0, 0], cm[0, 1]], [cm[1, 0], cm[1, 1]]]
+
+        # Plotar e salvar a matriz de confusão
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", cbar=False)
-        plt.xlabel("Predito")
-        plt.ylabel("Real")
-        plt.title(f"Matriz de Confusão - Época {epoch + 1}")
+        sns.heatmap(cm_display, annot=True, fmt="d", cmap="Blues", cbar=False,
+                    xticklabels=['Positivo', 'Negativo'], yticklabels=['Positivo', 'Negativo'],
+                    annot_kws={"size": 16})  # Aumenta o tamanho dos números dentro dos quadrados
+        plt.xlabel("Predito", fontsize=16)
+        plt.ylabel("Real", fontsize=16)
+        plt.title("Matriz de Confusão - Testes", fontsize=18)
+
+        # Adicionar os rótulos VN, VP, FP, FN no canto superior esquerdo
+        for i in range(2):
+            for j in range(2):
+                plt.text(j, i, labels[i * 2 + j], ha='left', va='top', color="red", fontsize=12, weight="bold")
+
         plt.savefig(f"{RESULT_PATH}matriz_confusao_epoca_{epoch + 1}.png")
         plt.close()
 
