@@ -84,7 +84,7 @@ class ConfusionMatrixCallback(Callback):
 
         # Configurações para rótulos personalizados e tamanho das fontes
         labels = ['VP', 'FP', 'FN', 'VN']
-        cm_display = [[cm[0, 0], cm[0, 1]], [cm[1, 0], cm[1, 1]]]
+        cm_display = [[cm[1, 1], cm[0, 1]], [cm[1, 0], cm[0, 0]]]
 
         # Plotar e salvar a matriz de confusão
         plt.figure(figsize=(8, 6))
