@@ -93,7 +93,7 @@ class ConfusionMatrixCallback(Callback):
                     annot_kws={"size": 16})  # Aumenta o tamanho dos números dentro dos quadrados
         plt.xlabel("Predito", fontsize=16)
         plt.ylabel("Real", fontsize=16)
-        plt.title("Matriz de Confusão - Testes", fontsize=18)
+        plt.title(f"Matriz de Confusão - Época {epoch + 1}", fontsize=18)
 
         # Adicionar os rótulos VN, VP, FP, FN no canto superior esquerdo
         for i in range(2):
