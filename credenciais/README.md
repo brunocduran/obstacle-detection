@@ -1,5 +1,8 @@
-# Auxílio a Deficientes Visuais Utilizando Redes Neurais Convolucionais (Backend)
+# Configuração do Firebase e Credenciais
 
-**Participantes:**
-- **Desenvolvedores:** Bruno César Duran e Igor Bianco Buosi
-- **Orientador:** Jefferson Antônio Ribeiro Passerini
+- Acesse o Firebase Console: https://console.firebase.google.com/
+
+- Inicie um novo projeto:
+<p align="center">
+  <img width="70%" src="img/1-Inicio.png" />
+</p>
