@@ -14,7 +14,7 @@
 
 ![3-Google-Analytics](img/3-Google-Analytics.png)
 
-- Caso tenha ativado o **Google Analytics**, configure-o e clique em **Criar Projeto**
+- Caso tenha ativado o **Google Analytics**, configure-o e clique em **Criar Projeto**:
 
 ![4-Configurar-o-Google-Analytics](img/4-Configurar-o-Google-Analytics.png)
 
@@ -26,15 +26,15 @@
 
 ![6-Configuracao-do-Projeto](img/6-Configuracao-do-Projeto.png)
 
-- Em seguida, acesse a aba **Contas de serviço**, selecione a opção **Python** e clique em **Gerar nova chave privada**.
+- Em seguida, acesse a aba **Contas de serviço**, selecione a opção **Python** e clique em **Gerar nova chave privada**:
 
 ![7-Contas-de-Servico](img/7-Contas-de-Servico.png)
 
-- Após o passo anterior, será baixado um arquivo **JSON**. Esse arquivo deve ser renomeado para **credencial.json** e copiado para a pasta **credenciais**, localizada na raiz do projeto, no diretório: *obstacle-detection\credenciais*.
+- Após o passo anterior, será baixado um arquivo **JSON**. Esse arquivo deve ser renomeado para **credencial.json** e copiado para a pasta **credenciais**, localizada na raiz do projeto, no diretório: *obstacle-detection\credenciais*:
 
 ![8-Pasta-Credenciais](img/8-Pasta-Credenciais.png)
 
-- Volte ao menu principal do Firebase, acesse o menu lateral **Criação** e selecione **Storage**.
+- Volte ao menu principal do Firebase, acesse o menu lateral **Criação** e selecione **Storage**:
 
 ![9-Criar-Storage](img/9-Criar-Storage.png)
 
